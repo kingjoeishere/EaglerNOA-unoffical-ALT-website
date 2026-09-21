@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eaglercraft NOA V2</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Lexend','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#0a0a0a;color:#f9f9f9;line-height:1.6}
+a{color:#ff5a5a;text-decoration:none}a:hover{text-decoration:underline}
+.header{background:#000;border-bottom:1px solid #2a2a2a;padding:12px 24px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+.header h1{font-size:20px;font-weight:700;color:#fff;font-family:'Lexend','Segoe UI',Roboto,Arial,sans-serif}
+.menu-btn{display:none;background:none;border:none;font-size:24px;cursor:pointer;margin-right:16px;color:#ccc}
+.offline-badge{background:#ea4335;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;margin-left:12px;font-weight:500}
+.sidebar{width:260px;background:#141414;border-right:1px solid #2a2a2a;height:calc(100vh - 49px);position:fixed;top:49px;left:0;overflow-y:auto;z-index:90;transition:transform .3s}
+.sidebar a{display:block;padding:10px 24px;color:#ccc;font-size:14px;border-left:3px solid transparent}.sidebar a:hover{background:#1c1c1c;color:#ff0000}.sidebar a.active{background:#1c1c1c;color:#ff0000;border-left-color:#ff0000;font-weight:500}
+.main{margin-left:260px;margin-top:49px;padding:32px 48px;max-width:1000px;min-height:calc(100vh - 49px)}
+.footer{margin-left:260px;background:#141414;border-top:1px solid #2a2a2a;padding:20px 48px;font-size:13px;color:#999;line-height:1.8}
+h2{font-size:28px;font-weight:700;margin-bottom:16px;color:#fff;font-family:'Lexend','Segoe UI',Roboto,Arial,sans-serif}
+h3{font-size:20px;font-weight:700;margin:20px 0 10px;color:#fff;font-family:'Lexend','Segoe UI',Roboto,Arial,sans-serif}
+h4{font-size:16px;font-weight:500;margin:14px 0 8px;color:#fff}
+p{margin-bottom:12px;font-size:15px;color:#e0e0e0}
+.btn{display:inline-block;padding:8px 24px;border:1px solid #ff0000;border-radius:4px;background:#ff0000;color:#f9f9f9;font-size:14px;margin:4px;cursor:pointer;text-decoration:none;transition:all .2s}.btn:hover{background:#cc0000;border-color:#cc0000;text-decoration:none}
+.btn-play{background:#ff0000;color:#f9f9f9;border-color:#ff0000}.btn-play:hover{background:#cc0000;text-decoration:none}
+.card{background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:16px 20px;margin-bottom:12px}
+.divider{border-top:1px solid #2a2a2a;margin:24px 0}
+.version-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:12px 0}
+.article{background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:20px;margin-bottom:16px}
+.article-date{font-size:12px;color:#888;margin-bottom:4px}
+.article-title{font-size:18px;font-weight:700;margin-bottom:8px;color:#fff;font-family:'Lexend','Segoe UI',Roboto,Arial,sans-serif}
+.article-body{font-size:14px;color:#e0e0e0;line-height:1.7}
+.article-author{font-size:12px;color:#ff5a5a;margin-bottom:6px;font-weight:500}
+.faq-item{margin-bottom:16px}.faq-q{font-weight:600;color:#fff}.faq-a{color:#e0e0e0;margin-top:4px}
+.section-label{font-size:13px;font-weight:600;color:#ff5a5a;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #2a2a2a}
+ul{margin:8px 0 12px 24px}li{margin-bottom:4px;font-size:14px;color:#e0e0e0}
+strong{color:#fff}
+@media(max-width:768px){
+.menu-btn{display:block}
+.sidebar{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.main,.footer{margin-left:0}
+.main{padding:20px 16px}
+.footer{padding:16px}
+.version-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.version-grid{grid-template-columns:1fr}.btn{display:block;text-align:center}}
+</style>
+</head>
+<body>
+<div class="header">
+<button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
+<h1>Eaglercraft NOA V2</h1>
+<span class="offline-badge" id="offlineBadge" style="display:none">OFFLINE</span>
+</div>
+<div class="sidebar" id="sidebar"></div>
+<div class="main" id="main"></div>
+<div class="footer" id="footer"></div>
+<script>
+window.ga=function(){};const DL='https://drive.google.com/uc?export=download&id=',GHV='https://eaglercraftnoa.github.io/version/',GHC='https://eaglercraftnoa.github.io/client/',GHCS='https://eaglercraftnoa.github.io/clients/';
+const IS_ONLINE=navigator.onLine;
+window.addEventListener('online',()=>{document.getElementById('offlineBadge').style.display='none'});
+window.addEventListener('offline',()=>{document.getElementById('offlineBadge').style.display=''});
+if(!navigator.onLine){document.getElementById('offlineBadge').style.display=''}
+
+const NAV=['Hub','Launcher','Downloads','Clients Launcher','Client Downloads','Wispcraft','Pre-Releases','Source Codes','Servers','News','Mods','Texture Packs','Custom Skins','Custom Capes','Memes','YouTubers','Skidders','Eagler History','FAQ','Tutorials','Feedback','NOA Projects','Backups'];
+
+const FOOTER='Made by TheCookering, MC Files, and Th3Lord of Jkcuk\'s, Randomahhdev, and Bramcracker! We are also not affiliated with Mojang AB or Microsoft. And by using this site you agree to the use of Google Analytics. Currently on U4';
+
+function navHash(name){return name.toLowerCase().replace(/\s+/g,'-')}
+
+function renderSidebar(){
+let h='';
+NAV.forEach(n=>{
+const a=navHash(n);
+h+=`<a href="#${a}" data-nav="${a}">${n}</a>`;
+});
+document.getElementById('sidebar').innerHTML=h;
+}
+
+function renderFooter(){document.getElementById('footer').innerHTML=FOOTER}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open')}
+
+function fmtDrive(url){return`<a href="${url}" target="_blank" rel="noopener" class="btn btn-play">Download</a>`}
+function fmtPlay(url){return`<a href="${url}" target="_blank" rel="noopener" class="btn btn-play">Play</a>`}
+function fmtGitHub(url){return`<a href="${url}" target="_blank" rel="noopener" class="btn">GitHub</a>`}
+function fmtExternal(url,label){return`<a href="${url}" target="_blank" rel="noopener" class="btn">${label||'Open'}</a>`}
+
+function grid(arr){return`<div class="version-grid">${arr.join('')}</div>`}
+
+const pages={};
+
+pages['hub']=()=>`
+<h2>Eaglercraft NOA V2</h2>
+<div class="card">
+<p>A lot of Eaglercraft sites have ads, and we don't, we are also easy to navigate through. If pages go missing they are being updated.</p>
+</div>
+<div class="card">
+<h3>EaglercraftNOA Times</h3>
+<p>Two Articles Every Week, Thats It, Maybe If It's Breaking News (Thursdays and Sundays)</p>
+</div>
+`;
+
+pages['launcher']=()=>`
+<h2>Eaglercraft NOA V2 - Launcher</h2>
+<p>Play Eaglercraft in your web browser, click on one of the buttons, and play!</p>
+<div class="divider"></div>
+<div class="section-label">JavaScript Launcher</div>
+<div class="version-grid">
+${[
+['1.13.2 JS',GHV+'Eaglercraft-1.13.2-JS.html'],
+['1.12.2 JS',GHV+'Eaglercraft_1.12_Javascript.html'],
+['1.7.10 JS',GHV+'Eaglercraft%201.7.10-Javascript.html'],
+['1.6.4 JS',GHV+'Eaglercraft%201.6.4.html'],
+['1.5.2 JS',GHV+'1.5.2.html'],
+['1.3.2 JS',GHV+'Eaglercraft_1_3_2.html'],
+['1.1 JS',GHV+'Eaglercraft_1.1.html'],
+['1.0 JS',GHV+'Eaglercraft_1_0_0.html'],
+['Beta 1.9 JS',GHV+'Eaglercraft_Beta_1.9_pre_5.html'],
+['Beta 1.7.3 JS',GHV+'Beta_1.7.3.html'],
+['Beta 1.6.4 JS',GHV+'Eaglercraft_b-1_6_4.html'],
+['Beta 1.6-tb3 JS',GHV+'Eaglercraft%20beta%201.6-tb3.html'],
+['Beta 1.3 JS',GHV+'eaglercraft-beta-1.3.html'],
+['Beta 1.1_02 JS',GHV+'Eaglercraft_b1.1.html'],
+['Beta 1.0.2 JS',GHV+'Eaglercraft_Beta_1.0.2.html'],
+['Alpha 1.2.6 JS',GHV+'eaglercraft-alpha-1.2.6.html'],
+['Alpha 1.1.2_01 JS',GHV+'Eaglercraft_Alpha_1.1.2_01.html'],
+['Alpha 1.0.16_02 JS',GHV+'Eaglercraft%20alpha%201.0.16_02-JS.html'],
+['Alpha 1.0.4 JS',GHV+'Alpha%201.0.4-JS.html'],
+['Alpha 1.0.1_01 JS',GHV+'Alpha%201.0.1_01-JS.html'],
+['Indev JS',GHV+'eagler-indev.html'],
+['Indev 20100223 JS',GHV+'Eaglercraft_indev%2020100223_JS.html'],
+['Indev 20100219 JS',GHV+'Eaglercraft%20Indev%2020100219-JS.html'],
+['Indev 20100214 JS',GHV+'Indev_20100214_JS.html'],
+['0.30 JS',GHV+'Classic%200.30-JS.html'],
+['0.25_5 JS',GHV+'Classic%200.25_5-JS.html'],
+['0.24_3 JS',GHV+'Classic%200.24_3-JS.html'],
+['0.0.23a_01 JS',GHV+'Classic%200.0.23a_01-JS.html'],
+['0.0.22a_5 JS',GHV+'Classic%200.0.22a_5-JS.html'],
+['0.0.21a JS',GHV+'Classic%200.0.21a-JS.html'],
+['0.0.20_2a JS',GHV+'Classic%200.0.20_2-JS.html'],
+['0.0.19a_6 JS',GHV+'Classic%200.0.19a_6-JS.html'],
+['0.0.18a_2 JS',GHV+'Classic%200.0.18a_2-JS.html'],
+['0.0.17a JS',GHV+'Classic%200.0.17a-JS.html'],
+['0.0.16a_2 JS',GHV+'Classic%200.0.16a_2-JS.html'],
+['0.0.15a JS',GHV+'Classic%200.0.15a-JS.html'],
+['0.0.14a_08 JS',GHV+'Classic%200.0.14a_8-JS.html'],
+['0.0.13a_03 JS',GHV+'Classic%200.0.13a_3-JS.html'],
+['0.0.12a_03 JS',GHV+'Classic%200.0.12a_3-JS.html'],
+['0.0.11a JS',GHV+'Classic%200.0.11a-JS.html'],
+['4K JS',GHV+'Eaglercraft-4k-JS.html'],
+['RD-161348 JS',GHV+'rd-161348-JS.html'],
+['RD-160052 JS',GHV+'rd-160052-JS.html'],
+['RD-132328 JS',GHV+'rd-132328-JS.html'],
+['RD-132211 JS',GHV+'rd-132211-JS.html'],
+['RD-131655 JS',GHV+'rd-131655-JS.html'],
+['Minicraft JS',GHV+'Minicraft.html'],
+['Scratch Edition JS',GHV+'Eaglercraft%20Scratch.html'],
+].map(([n,u])=>`<div>${n} ${fmtPlay(u)}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">WASM Launcher</div>
+<div class="version-grid">
+${[
+['26.2 WASM',GHV+'eaglercraft-26.2.html'],
+['26.1.2 WASM',GHV+'Novix_26.1.2.html'],
+['1.21.11 WASM',GHV+'Eaglercraft-1-21-11_wasm.html'],
+['1.20.6 WASM',GHV+'Eaglercraft_1.20.6_WASM-GC.html'],
+['1.17 WASM',GHV+'eaglercraft-1.17-wasm_gc.html'],
+['1.16.5 WASM',GHV+'eaglercraft-1.16.5-wasm-gc.html'],
+['1.14.4 WASM',GHV+'Eaglercraft_1.14.4_WASM-GC_U1.html'],
+['1.13.2 WASM',GHV+'Eaglercraft%201.13.2-WASM.html'],
+['1.12.2 WASM',GHV+'Eaglercraft_1.12.2-WASM-GC.html'],
+['1.8.8 WASM',GHV+'Eaglercraft-1.8.8.html'],
+['1.7.10 WASM',GHV+'Eaglercraft-1.7-wasm.html'],
+['1.4.7 WASM',GHV+'Eaglercraft_1.4.7-WASM.html'],
+['1.2.5 WASM',GHV+'Eaglercraft_1.2.5_wasm.html'],
+['1.2.3 WASM',GHV+'Eaglercraft_1.2.3_WASM-GC.html'],
+['Beta 1.8.1 WASM',GHV+'Eaglercraft_beta%201.8.1_WASM.html'],
+['Beta 1.5_01 WASM',GHV+'Eaglercraft%20Beta%201.5_01.html'],
+['Beta 1.4_01 WASM',GHV+'Eaglercraft_Beta_1.4_01.html'],
+['Beta 1.2_02 WASM',GHV+'Eaglercraft_Beta-1.2_02.html'],
+['Alpha 1.2.6 WASM',GHV+'eaglercraft-alpha-1.2.6-WASM.html'],
+['Alpha 1.0.6_03',GHV+'Eaglercraft%20Alpha%201.0.6_03.html'],
+['Infdev WASM',GHV+'infdev-wasm-gc.html'],
+['0.30 WASM',GHV+'classic-0.30_WASM.html'],
+].map(([n,u])=>`<div>${n} ${fmtPlay(u)}</div>`).join('')}
+</div>
+`;
+
+pages['downloads']=()=>`
+<h2>Eaglercraft NOA V2 - Downloads</h2>
+<p>When the internet goes out, play Eaglercraft offline on a HTML file! And for all my F- students, you can play it unblocked at school!</p>
+<div class="divider"></div>
+<div class="section-label">Release Versions</div>
+<div class="version-grid">
+${[
+['26.2',DL+'161p8MZRe3Bts6mprXw75_i4dgFbQRiO7'],
+['26.1.2',DL+'1kgq1FphO_fZyKC-fI3FqMP08YdpPJHTZ'],
+['1.21.11',DL+'1Ho5ueiOVTZU38m_tFj_8AkrRA5GCl2YF'],
+['1.20.6',DL+'14VlhgGjDCGQmkuqRb7tacW9688C7e7SB'],
+['1.17',DL+'1_CtRIvuZrvEVtPNI7D4n9AkVs0du6lMT'],
+['1.16.5',DL+'17lN-H6149v6h25jVcjZ-gH4n5XKnwQUm'],
+['1.14.4',DL+'1dv9ancc9yD7JsYwUkE7qNb97Ucb80ckQ'],
+['1.13.2',DL+'1Dn6VFbJJVrN6glgNFmz-6xlPdetYH38t'],
+['1.12.2',DL+'1ntGASCgr9C5Vt7r3Eo1B5_gbPjefO4Tx'],
+['1.8.8',DL+'1Wt5jUu9GuGCdb2JJSasf0oAomS7PUEaX'],
+['1.7.10',DL+'1cB-GWECAfRuijUPa8P41m0xsOYRWpNEU'],
+['1.6.4',DL+'1uZmGW3SslepQ72I1hljMwNwJ8dunu3lO'],
+['1.5.2',DL+'10cxqG0ezMxm_t7F9uTcA14KnJCcbnLnk'],
+['1.4.7',DL+'1Hk_RV6Wm_xffzLoOtNQA6a-5kIevSVgg'],
+['1.3.2',DL+'1t0jnnJNdbvHf_koMqWzO0GEYL1AoLFYX'],
+['1.2.5',DL+'15i-_jBisg5SCr1TSds28WpPglqfaDEqY'],
+['1.2.3',DL+'12giyIoDCc4IFV-0MdXMouapU4P6gYxq6'],
+['1.1',DL+'1YhCw-S2Jfp-UvxAwrmRVneHrOhKSUz_B'],
+['1.0',DL+'1iykkq-EvFcvJ3Rk0V4Uq39MnFYjR1LNT'],
+['Beta 1.9',DL+'17ISEv1yHFvElliyT6-NNu1BO59Hl2Hmx'],
+['Beta 1.8.1',DL+'1bPfNczcmYasXnDIaIPFPKjrnQ90J-tZ_'],
+['Beta 1.7.3',DL+'1t2XF5wb0sVKpvmUIAViRpx2SpQmtkDh_'],
+['Beta 1.6.4',DL+'1daLDe_YHRGXoZOBBIa2HDYnH98-y_WNo'],
+['Beta 1.6-tb3',DL+'19XcKIo2sFq-hBKPzsq8QtLIbNHMDNaf4'],
+['Beta 1.5_01',DL+'1c8NMM-6nRTzKp9UheRIGabjfX6sbHeJo'],
+['Beta 1.4_01',DL+'1ab9cRwC9eA8hcAY16TukapR26fo4suIG'],
+['Beta 1.3',DL+'1jBOYPC5AbUnu_gMzARB2ka6FG6iBuQlf'],
+['Beta 1.3_01',DL+'1RFeT6ze-f8uOL6ZxJA-dDcprp4Zosna3'],
+['Beta 1.2_02',DL+'1VX9G3qQtQUFtNeJURvhiFdZ6bbiQ4gDW'],
+['Beta 1.1',DL+'1P6SjUlahfHOvkhaIq9c08RfUa2SgIBBq'],
+['Beta 1.0.2',DL+'1tdHIIrR0fwAdrCUPxRAHv3Flz2qtrUsA'],
+['Alpha 1.2.6',DL+'1gO0DLNIniICNBDg32DMRjwqnz6t38uOF'],
+['Alpha 1.0.16_02',DL+'1WEG88aUzlNm21KtyBzAWBiHT0hOKIjbq'],
+['Alpha 1.0.4',DL+'1aSduX8LayYLz0UmXLirgE8nuvSxhvyQU'],
+['Alpha 1.0.1_01',DL+'1hVLqKvzTCqXuY0TPp7GNufpmWaWAAUzG'],
+['Infdev',DL+'1aVE-DEnBb5ZwTN_aUm96_RzLz-jqVwvN'],
+['Indev',DL+'1yxvoFCTMMkHH7g1F8L4EtOqtfbGPqTEa'],
+['Indev 20100223',DL+'1qq6T_VcpZJeZYBM1YvO6ZBW3HMr3IPLk'],
+['Indev 20100219',DL+'1uucntI3gW9M3JivN7KhUTS2tTJvHUG9a'],
+['Indev 20100214',DL+'176_QlfWALLbRbyBspRdihIpNbEDHJwjR'],
+['Classic 0.30',DL+'1lVMIHg901nLmF_pIpqWKLmH7GuZfLLPA'],
+['Classic 0.25_5',DL+'1E62k9COKPRuLR237QydfMvtRcGLsidPQ'],
+['Classic 0.0.23a_01',DL+'1arZ1QBUYmwzPuLB6ConPyp571DpWbxWE'],
+['Classic 0.24_3',DL+'1A1hVkWyiWAcELfCpWCxNeNZ4KXslwYPd'],
+['Classic 0.0.22a_5',DL+'1UX7j5l9hv7lOYmlXyoK3Cct5CQGWj-es'],
+['Classic 0.0.21a',DL+'1M77Ca6yCtxCUdJV47NcKG8rAgnj2Omr7'],
+['Classic 0.0.20_2',DL+'1naPkrJ0uiVgDvY_7Ugz3Tjh-MvJLffad'],
+['Classic 0.0.19a_6',DL+'15TTKmgTr2woT3R1a4qp23grq3DfvqiqH'],
+['Classic 0.0.18a_2',DL+'1p9k2t7apedlIZs9cZcF_UiwPKAwSqsPj'],
+['Classic 0.0.17a',DL+'1lp0Z1DCi99iPVrHJufmO_OYV7RoQ5ir0'],
+['Classic 0.0.16a_2',DL+'1D-l0RIFc1O3DFDehWCE8MT5S6Cd-vGTI'],
+['Classic 0.0.15a',DL+'1HI4YMXBvDFgvkpHaYdE5HPbp-YrW5JSu'],
+['Classic 0.0.14a_8',DL+'1nINe2OfuBYWw3H-3qyC6qgo1enjQ4uIe'],
+['Classic 0.0.13a_3',DL+'1nL6jvVY57SMdy4T5kSDC5WpNUynIZyZT'],
+['Classic 0.0.12a_3',DL+'1CjZha5QkCnhVeBVMbBvNEYI8f7MxFKE8'],
+['Classic 0.0.11a',DL+'1zRrdYEtQKO7tuaaOGmQRPC9aHGgyCdIo'],
+['4K',DL+'1zlF786yEHoOsHgGlDrgCq_-hiQ1v6s_G'],
+['rd-161348',DL+'1wGuG9AzJNe-o3cMWmeYvED0AqaSkWLM-'],
+['rd-160052',DL+'1EsWhFnJ-whvIiZ1wf-x0p7UpMghzEGFB'],
+['rd-132328',DL+'1EsWhFnJ-whvIiZ1wf-x0p7UpMghzEGFB'],
+['rd-132211',DL+'10AaUBcGYtKF0dD5JTY1b2aora0LjvSMv'],
+['rd-131655',DL+'1Z1ley0HtALJuYejOsm13SPnfnm4knxW1'],
+['Minicraft',DL+'1a73cHzwhrOXw34zRpgJhMmpgW3KC3-P4'],
+['Scratch',DL+'1OaQ5Yp8Vy_5L6IKOYYLHp3rJDw2sesDy'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+`;
+
+pages['clients-launcher']=()=>`
+<h2>Play your favorite Eaglercraft Clients right here!</h2>
+<div class="divider"></div>
+<div class="section-label">Clients</div>
+<div class="version-grid">
+${[
+['Precision Client 1.0.0',GHC+'Precision_Client_1.0.0.html'],
+['Tuff Client UT15 WASM',GHC+'Tuff_Client_WASM.html'],
+['Tuff Client UT15 JS',GHC+'Tuff_Client_JS.html'],
+['Pixel Clients',GHC+'PixelClient%20Multi%20Versions.html'],
+['Resent 5.1 Patch 1 JS',GHC+'ResentClient_1.8_JS-5.1.html'],
+['Resent 5.1 Patch 1 WASM',GHC+'ResentClient_1.8_WASM-GC-5.1.html'],
+['Resent Client 5.0 WASM',GHC+'ResentClient_5.0_WASM.html'],
+['Resent 4.0 Patch 4 JS',GHC+'Resent-V4.html'],
+['Resent 4.0 Patch 3 JS',GHC+'Resent-4.0-Patch-3.html'],
+['Resent Client 3.6 JS',GHC+'Resent_3.6_1_1.8_US.html'],
+['Aero Client 1.0.7 JS',GHV+'Aero%20Client%20JS.html'],
+['Starlike Client 0.3.0 JS',GHCS+'Starlike_Client_0.3.0.html'],
+['Water Client JS',GHV+'Water%20Client.html'],
+['EB Client Nextgen CU5',GHC+'EB.Client.Nextgen.CU5.html'],
+['EB Client Nextgen CU4',GHV+'EB%20Client%20Nextgen%20CU4.html'],
+['EB Client Nextgen CU3',GHCS+'EB%20Client%20Nextgen%20CU3.html'],
+['Mega Client',GHC+'Mega%20Client.html'],
+['Myven Client',GHC+'MyvenClient_WASMGC.html'],
+['Precision Client',GHV+'Precision.html'],
+['Moonlight Client',GHC+'Moonlight%20Client.html'],
+['Solar Client 1.8.8',GHC+'solarclient.html'],
+['Voltan Launcher',GHC+'voltan-launcher.html'],
+['Larpc 1.14',GHC+'larpc-1.14.html'],
+['Kozmo Client 1.12.2',GHC+'Kozmo%20Client%20u0%201.12.2.html'],
+['Larpc 1.12',GHC+'larpc-1.12.html'],
+['Zeta Client',GHC+'ZetaClient.html'],
+['EaglerForge 1.8.8',GHC+'EaglerForge.html'],
+['Lambda Client',GHC+'LambdaClient.html'],
+['EaglyMC u7 JS',GHC+'Eaglymc_1.20_JS.html'],
+['Stratus Client WASM',GHC+'Stratus_Client_WASM.html'],
+['EaglyMC u7 WASM',GHC+'EaglyMC_1.20_WASM.html'],
+['EaglercraftZ 0.3.0 JS',GHC+'EaglercraftZ_1.20_JS.html'],
+['Koneclient 1.8.8 JS',GHC+'Koneclient-1.8.8.html'],
+['EaglercraftZ 0.3.0 WASM',GHC+'EaglercraftZ_1.20_WASM-GC.html'],
+['Eclipse Client JS',GHC+'EclipseClient_JS.html'],
+['Huzzium Client 1.8.8',GHV+'Huzzium-Client.html'],
+['Eclipse Client WASM',GHC+'Eclipse%20Wasm.html'],
+['Shadow 4.0',GHC+'Shadow_Client.html'],
+['Ghost Client 1.12.2',GHC+'Ghost%20Client%20(1.12.2%20en_US).html'],
+['ViaClient',GHC+'viaclient-0.html'],
+].map(([n,u])=>`<div>${n} ${fmtPlay(u)}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">Hacked Clients</div>
+<div class="version-grid">
+${[
+['DragonX Client',GHC+'DragonX_International.html'],
+['WurstX Client',GHC+'WurstX%20Client.html'],
+['N0VA Client',GHC+'N0VA%20Client.html'],
+['UwU Client',GHC+'UwU%20Client.html'],
+['Pi Client',GHC+'Pi%20Client.html'],
+['FuchiaX','http://eaglercraftnoa.github.io/client/Fuchsiax%202.html'],
+].map(([n,u])=>`<div>${n} ${fmtPlay(u)}</div>`).join('')}
+</div>
+`;
+
+pages['client-downloads']=()=>`
+<h2>Download the Eaglercraft clients!</h2>
+<div class="divider"></div>
+<div class="section-label">Client Downloads</div>
+<div class="version-grid">
+${[
+['ShadowNetClient',DL+'1x0SC62IPFjUDD5erxQtf9qJ3pLY9sNPW'],
+['Tuff Client',DL+'1zE9WhJs2yhcGTrTm1ym3vM6mUboMkG9t'],
+['Resent Client 5.1',DL+'1DTHUjP4nMKqZ9w-yAmMVLnAZfaAtNjwk'],
+['Resent Client V5',DL+'1xtJvQyu2VyC4yhvv5b62bBortjSW7jks'],
+['EB Client',DL+'1oE8e_n8Mfd-GiYN8c1gS5qVNDgTcJb6o'],
+['EaglyMC',DL+'1TGhSTWeukteIatThvdOHbCtK5dcaSQCY'],
+['Pixel Client',DL+'1lIAj8cNnGmPzavVPzsiuMbFrtT6aLCXi'],
+['Resent Client V4',DL+'1KB9PxOPEYLEMQ2tCIniLzAn73s-Odrmf'],
+['Resent Client V3.8',DL+'1pZHc_h6uVt7-2L3DOsbIZmeFKsMH3rNz'],
+['Starlike Client',DL+'1xU4o6InRNUGByN82avBH10v7uBbHsnbO'],
+['Aero Client',DL+'1EG6k_7mDjloHe3aGr0hfNge3h_o7-k73'],
+['Kone Client',DL+'1AJaIIErLhFmW5xVCr4TsAweWLEMttAKh'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">Hacked Client Downloads</div>
+<div class="version-grid">
+${[
+['Kerosene Client',DL+'1vFj3HTc-1EGlDJ13EXWyZ1FrTUlyNRdR'],
+['DragonX Client',DL+'1a-xlqZI1yquKuFcFoAH-SpK7zsw1EhF2'],
+['Pi Client',DL+'1NQg52uuNrvqsssbEZUD6NDfJaUttptHo'],
+['OddFuture Client',DL+'1Xos_jQBCtKLRvHySEJTm0PfNnrCGMuLD'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+`;
+
+pages['wispcraft']=()=>`
+<h2>Wispcraft</h2>
+<div class="section-label">Launch Online</div>
+<div class="version-grid">
+${[
+['Wispcraft 1.12.2',GHV+'wispcraft-Eaglercraft-1.12.html'],
+['Wisp Injector',GHV+'injector.html'],
+['Wispcraft 1.8.8',GHV+'Eaglercraft-1.8_wasm-wispcraft.html'],
+].map(([n,u])=>`<div>${n} ${fmtPlay(u)}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">Download</div>
+<div class="version-grid">
+${[
+['Wispcraft 1.12.2',DL+'1J5mv0J-KoQXm3w93MD1nDzZx7oa9y6sQ'],
+['Wispcraft Injector',DL+'1oiPngjoXdqEWQtBuB_wivvEUQvjcrKke'],
+['Wispcraft 1.8.8',DL+'13It4R6YQmiuJbXcrFrNOk-bkzEG5bq7m'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+`;
+
+pages['pre-releases']=()=>`
+<h2>Pre-Releases</h2>
+<p>These are Eaglercraft Pre-Releases, basically a version of Eaglercraft, that isn't fully ready, but still releases to the public. I have no other way of describing it. These are made by the community.</p>
+<div class="divider"></div>
+<div class="section-label">Discord Servers</div>
+<div class="version-grid">
+${[
+['Eaglercraft 26.2 - o_xer','https://discord.gg/8HGGx6RMbw'],
+['Arlenh7 Discord','https://discord.gg/8HGGx6RMbw'],
+['Syantaxsavy\'s Discord','https://discord.gg/69YcGzdkfV'],
+['EymenWSMC Discord','https://discord.gg/SjHwdhfswQ'],
+['AcornDev\'s Discord','https://discord.gg/BQzRbWxQCw'],
+['Voltan Client\'s Discord','https://discord.gg/DwjxtYhp57'],
+['1.18.2 Discord','https://discord.gg/hDesEeD3A7'],
+].map(([n,u])=>`<div>${n} ${fmtExternal(u,'Discord')}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">Downloads / Links</div>
+<div class="version-grid">
+${[
+['1.16.5','https://www.mediafire.com/file/i9udiwi3c6vkb4s/EaglercraftX_1.16_WASM-GC_Offline_Download.html/file'],
+['1.21.11','https://www.mediafire.com/file/2oqt9ihytokhvh3/Eaglercraft_1.21.11_WASM_Offline_Download_(7)_(1).html/file'],
+['1.16.5 (alt)','https://www.mediafire.com/file/i9udiwi3c6vkb4s/EaglercraftX_1.16_WASM-GC_Offline_Download.html/file'],
+['1.7.10 & 1.14.4','https://eymenwsmc.site/downloads'],
+['Kozmo Client','https://www.mediafire.com/file/es0a0gz2g6zle6s/Kozmo+Client+u0+1.12.2+en_US.html/file'],
+].map(([n,u])=>`<div>${n} ${fmtExternal(u,'Download')}</div>`).join('')}
+</div>
+`;
+
+pages['source-codes']=()=>`
+<h2>Source Codes</h2>
+<div class="section-label">Downloads</div>
+<div class="version-grid">
+${[
+['1.14.4 u0 Source',DL+'1JK_yCz_CqzZjWAsoiVipfb8KxbqLb5VF'],
+['1.8.8 u53 Source',DL+'17CJSg-fxCfMr2jtndX-SRQl03StJ6-Cp'],
+['1.5.2 Source',DL+'14X_nrUVNTQs7BjX2fGl7MiDg7xOGM3aD'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">GitHub Links</div>
+<div class="version-grid">
+${[
+['1.14.4 Source','https://github.com/Eagler-Versions/eaglercraft-1.14-workspace'],
+['1.8.8 Source','https://github.com/Eaglercraft-Archive/Eaglercraftx-1.8.8-src'],
+['1.7.10 Source','https://github.com/Eagler-Versions/eaglercraft-1.7.10-workspace'],
+['1.6.4 Source','https://github.com/catfoolyou/Eagler-Client-1.6.4'],
+['1.5.2 Source','https://github.com/Eaglercraft-Archive/Eaglercraft-1.5.2-src'],
+['1.4.7 Source','https://github.com/eymenwsmc/1.4.7-builds'],
+['Beta 1.7.3 Source','https://github.com/PeytonPlayz595/Beta-1.7.3'],
+['Beta 1.3 Source','https://github.com/Eaglercraft-Archive/eaglercraft-beta-1.3-source'],
+['Beta 1.1_02 Source','https://github.com/PeytonPlayz595/Beta-1.1_02'],
+].map(([n,u])=>`<div>${n} ${fmtGitHub(u)}</div>`).join('')}
+</div>
+`;
+
+pages['servers']=()=>`
+<h2>Servers</h2>
+<p>Servers for Eaglercraft!</p>
+<div class="card"><p><em>Servers page coming soon. Stay tuned!</em></p></div>
+`;
+
+pages['news']=()=>`
+<h2>News</h2>
+<p>Were you can find the newest and latest Eaglercraft news. You may also search up news articles that are on this page. If there isn't anything new or intresting it will not be here even on Sundays and Thursdays.</p>
+<div class="divider"></div>
+
+<div class="article">
+<div class="article-date">8/30/26</div>
+<div class="article-title">Welcome back, Precision Client.</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">I am excited to announce that Precision Client v1.0.0 has finally been released! After the project's disappearance for what seemed to be CyanogenMC (Client) and Precision Client 2, people began to stop waiting as all of those were cancelled, along with, well, Precision. During that time, people stayed in the server just waiting, as they hoped one day, it would finally release. Well, now it has! You can use it at EaglerNOA however, here is the discord for Precision Client so you can find more information. <a href="https://discord.gg/bvZ3UE5cGc" target="_blank" rel="noopener">https://discord.gg/bvZ3UE5cGc</a></div>
+</div>
+
+<div class="article">
+<div class="article-date">8/30/26</div>
+<div class="article-title">Eaglercraft 26.2 already?!</div>
+<div class="article-author">TheCookering</div>
+<div class="article-body">Welp, we did it guys, a beta HTML file of Eaglercraft 26.2, or commonly known as Eaglercraft 26.2 0.4 has just been released. The reason everyone is losing their minds is that this is the newest version of Minecraft, and it was ported in 3 months. Most Eaglercraft ports usually take nearly a year! The porter, o_xer, he is not as discussed as porters such as Syntaxsavy, or EymenWSMC, but he made the buggest impact! He is the saving grace after the summer DMCA's Eaglercraft experienced, and controversy, as it continues to update, it heals the damage made at the same time.</div>
+</div>
+
+<div class="article">
+<div class="article-date">8/22/26</div>
+<div class="article-title">Eaglercraft 1.20.6 has been released</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">Eaglercraft 1.20.6 has been released alongside 1.14.4 u1 by eymenwsmc. What to expect: Lag, as this is a beta release. It is proper 1.20.6, for the first time ever, as it isn't a backport unlike previous clients, such as EaglyMC or EaglercraftZ. As more versions are being ported, more variety has been achieved in the eaglercraft community, which will hopefully continue for the meanwhile.</div>
+</div>
+
+<div class="article">
+<div class="article-date">8/9/26</div>
+<div class="article-title">We will miss you Ampler</div>
+<div class="article-author">TheCookering</div>
+<div class="article-body">Yesterday, another DMCA takedown was sent, however it wasn't sent to any GitHub Repo, it was sent to Ampler Launcher, a famous launcher in the Eaglercraft community. Ampler launcher stood out over others, it was a part of the Eagler community for 3 years! Now, other Eaglercraft launchers on GitHub, are worried they might be next.</div>
+</div>
+
+<div class="article">
+<div class="article-date">7/31/26</div>
+<div class="article-title">Major DMCA's That Could Delay Major Ports & Drama Going Around Of A Major Client Developer?</div>
+<div class="article-author">Reported by TheCookering</div>
+<div class="article-body">Today was one of the worst days the Eaglercraft community has seen. Around 9 AM Eastern, Eaglercraft.dev, a very known Eaglercraft launcher would get DMCA'd for hosting EaglyMC on their website, and for owning the core domain. This deleyed the amount of updates the launcher will get. Two hours after, Eaglers all around the globe were hit again, with even more devestating news. Novix 26.1.2 was DMCA'd aswell, and is now discontinued. That wasn't the end of the DMCA's, EymenWSMC, currently porting Eaglercraft 1.14.4 was also DMCA'd for a second time. And prior to all of this, BarneyTheGod, known for creating famous client Astra Client, was exposed for making fun of someone's mental health, and uses of the Nazi symbol.</div>
+</div>
+
+<div class="article">
+<div class="article-date">7/23/26</div>
+<div class="article-title">Woah, is that 1.14.4?</div>
+<div class="article-author">Reported by MC Files</div>
+<div class="article-body">Yes! Eaglercraft 1.14.4 was released yesterday with great, maybe even the best possible performance for any version of Eaglercraft. It's meant to be the Village and Pillage update, an update that overhauled villages. It's the perfect version for villager things, but I do not personally know much about it. Despite Eaglercraft 1.14.4, EymenWSMC is aware, and is fixing them as of right now.</div>
+</div>
+
+<div class="article">
+<div class="article-date">7/11/26</div>
+<div class="article-title">Beta 1.16.5 has been released!</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">That's right. The first beta version for 1.16.5 Eaglercraft has officially been released in their discord server. Performance at the moment is quite bad (in the first release), along with it actually generating the world. Personally, on my device I was able to load inside the world with my ordinary performance, however, it does not work the greatest on other devices. Acorndev claims that he has fixed the issue, but time is to tell. Features are ordinary for 1.16.5 at the given moment, with Aero Client Reborn confirmed to be in the version 1.16.5.</div>
+</div>
+
+<div class="article">
+<div class="article-date">6/23/26</div>
+<div class="article-title">1.18.2 is just knocking at the door</div>
+<div class="article-author">TheCookering</div>
+<div class="article-body">This month has been one of the most eventful times in Eaglercraft history! Syantaxsavy released the first beta build of Eaglercraft 1.21.11, and along with that a developer by the name of AcornDev announced he's making Eaglercraft 1.16, after the events TheBannanaManJCG scammed us again with Eaglercraft 26.1.1. Then out of left field, q13x released Eaglercraft 26.1.2, sure it was limited but it some sound waves across the community. Then a new dev, Novix finished q13x's project, using modern blaze3d backend spi on webgpu. But now 1.18.2 makes a scene! Already blocks have been implemented, and reports have shown that amathist geodes now generate.</div>
+</div>
+
+<div class="article">
+<div class="article-date">6/14/26</div>
+<div class="article-title">Novix Project - Minecraft 26.1.2 in the Browser</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">5 years ago, Eaglercraft was in version 1.5.2, that took around 4 months of code. In todays era of Eaglercraft, dev Novix, just made even more history than Syntaxsavy. Minecraft version 26.1.2, was released just two months ago, and now he will fully port it. In an interview I did with him he said he did this becuase he had free time, and Eaglercraft was outdated. Currently he fully ported singleplayer and continues to do more.</div>
+</div>
+
+<div class="article">
+<div class="article-date">6/2/26</div>
+<div class="article-title">Eaglercraft 1.16!</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">My favorite version finally comes to the Eaglercraft community! This was a well recieved updated from Minecraft.</div>
+</div>
+
+<div class="article">
+<div class="article-date">5/24/26</div>
+<div class="article-title">Astra Client 2?</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">BarneytheGod recently shared a clip of Astra Client 2. It has newer features not seen before.</div>
+</div>
+
+<div class="article">
+<div class="article-date">5/23/26</div>
+<div class="article-title">IDK, Eaglercraft 1.17</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">A recent post in the EaglercraftZ discord showed a discord for Eaglercraft 1.17, so far it is still in development, but what it holds for the future is ground breaking.</div>
+</div>
+
+<div class="article">
+<div class="article-date">5/10/26</div>
+<div class="article-title">Eaglercraft's one and only Syntaxsavy</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">A recent leak on Syntaxsavy discord server showcases a video of Syntaxsavy playing Eaglercraft 1.21, even though it has bugs, it is still to be noted in the Eaglercraft Hall of Fame if that is a thing.</div>
+</div>
+
+<div class="article">
+<div class="article-date">5/9/26</div>
+<div class="article-title">NexoMC is scam and malicious</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">For the community of Eaglercraft, NexoMC is a plugin that hacks servers and crashes games. It is also reported a trojan or virus, and no one should use it.</div>
+</div>
+
+<div class="article">
+<div class="article-date">5/6/26</div>
+<div class="article-title">Making 1.14</div>
+<div class="article-author">EymenWSMC</div>
+<div class="article-body">Got bored and making Eaglercraft 1.14, I am almost done. Updating textures.</div>
+</div>
+
+<div class="article">
+<div class="article-date">4/30/26</div>
+<div class="article-title">The most annoying Eaglercraft redditor?</div>
+<div class="article-author">MC Files</div>
+<div class="article-body">Intelligent-Rule7342 is probably the most known, and most hated Eaglercraft person of all time in Eaglercraft's history. The community has not appreciated his 'join my server codes', and report him for spamming. It is no wonder why his karma is -29.</div>
+</div>
+`;
+
+pages['mods']=()=>`
+<h2>Mods</h2>
+<p>Modifications to Eaglercraft made by community. You need to download these modded versions to play. Also, it may take 30 seconds to load.</p>
+<div class="divider"></div>
+<div class="section-label">Modded Eaglercraft Versions</div>
+<div class="version-grid">
+${[
+['Modded 1.8.8',DL+'1Q8f8wAnrfR9rbm0cY7Dw60a6SZ0tBL9o'],
+['Modded 1.12',DL+'106abytnHWCZ9fV-kqD9E463_vzlmuscK'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="section-label">Recommended Mods</div>
+${[
+['Fullbright',DL+'1ysh71RH3E6nX0-EWRWeSBPZczxUWI70Z',''],
+['Auto-Login',DL+'10h162HOeTVIVvAf4b1uC16yizdUMfwlF','Pressing "L" skips the login section'],
+['Player Finder',DL+'1x4pHakgnHs_xCiGgh2-SNyleonAvKICP','Locates players for you'],
+['No Particles',DL+'1AGKL6pyiMmPr9WFN01WTjARWZOy_VWFg','No Particle Effects'],
+['World Edit',DL+'1AldusPJgmo4qlWURbSSBgcHwaJ6XqX5s','Famous mod in Eaglercraft'],
+['Faster Minecarts',DL+'1fJv9noANw7j5ABtsGX_xTT3HE4OYLPVJ','Makes slow Minecarts very fast!'],
+['Auto-Respawn',DL+'1eikYCrPwYzObjbIJZvu-Fq9OVcbg9S0q','Skips the death screen menu'],
+['Auto-Click',DL+'1XPqOkCFxlxeuGWyuJqbUQnVNYy75dlLh','Clicks for you'],
+['Speed Mod',DL+'19toqhv9M9TFUfvii2Oe85kmMJdWXRMoM','Makes you faster'],
+['Jetpack',DL+'1ok7b3KYxCU-rdXyozLbsYxJLp2_hiA-1','Press "H" to fly'],
+['Vein Miner',DL+'1PKIPypdbQRaxj1fzt8uMS3SpL3XgOTwR','Mines a whole ore vein for you'],
+['Grapple hook',DL+'178EbJsh5FbyO22OUmTB8hMNgXmGlZrou','A fishing rod into a grapple hook'],
+['Ducks',DL+'17WtxduE_gPAX5-D6_c7YcnkGOrx5Ij9y','Adds ducks'],
+['Waypoints',DL+'1aFkCOIusBFYG7Kmo2tszScWllpk_ApLa','Navigate your world easier'],
+].map(([n,u,d])=>`<div class="card"><strong>${n}</strong> ${fmtDrive(u)}${d?'<br><small>'+d+'</small>':''}</div>`).join('')}
+<div class="divider"></div>
+<div class="section-label">Hylex Clients (Fabric mods ported to Eaglercraft)</div>
+${[
+['Emerald Stuff',DL+'1RVUp8OYd0EYJuFYEPDyqhOIW0BPRRj6D','Adds emerald armor and tools'],
+['Creepypasta Mod','https://drive.usercontent.google.com/download?id=1_vnTzDnZj01MPcZjhmaV7egeKa7CRfar&export=download&authuser=0&confirm=t&uuid=61705208-16bf-40c6-b723-7aefc9bb717b&at=AFYLz4OIYtIMKseJlQMSwaoxaGG2:1788122221855','Adds creepypastas from early Minecraft'],
+['The Broken Script','https://drive.usercontent.google.com/u/0/uc?id=1GUtMP5_Ji4-oiB1YoV6vx0edu3nn19Uq&export=download','Scary Horror Mod'],
+['Playtime','https://drive.usercontent.google.com/u/0/uc?id=1AFdZHdY3-HtZ6Ezzloc-CYH_MyfKJDGI&export=download','Tracks playtime on servers and provides fps boost'],
+['Familiar Fuana','https://drive.usercontent.google.com/u/0/uc?id=1_fGBDeRS3JgIgMZUdczHOmR4e_tZvnSK&export=download','Adds deers, turkeys, and insects, extra food too!'],
+['Ore Furnace','https://drive.google.com/download?id=1WcH4-BXwJ6wLXMoYx7CTi4868aTAU6tp&export=download&authuser=0&confirm=t&uuid=bab05271-f6de-4400-bff2-ac32c12f9ac8&at=AFYLz4OavBGewwqZKZKY9XBWnoOQ:1788113539759','Adds new furnaces into the game!'],
+['Random Item Drops','https://drive.usercontent.google.com/u/0/uc?id=1GUtMP5_Ji4-oiB1YoV6vx0edu3nn19Uq&export=download','Breaking blocks gives a random item'],
+].map(([n,u,d])=>`<div class="card"><strong>${n}</strong> ${fmtDrive(u)}<br><small>${d}</small></div>`).join('')}
+`;
+
+pages['texture-packs']=()=>`
+<h2>Texture Packs</h2>
+<p>Download Texture Packs for Popular Eaglercraft Versions!</p>
+<div class="divider"></div>
+<div class="section-label">1.12.2</div>
+${[
+['LowOnFire','https://drive.google.com/file/d/14_OOE5Rlv7rmOqPqn8wzP7lAtWtq6nNq/view?usp=sharing'],
+['Vanilla 3d Crystal','https://drive.google.com/file/d/14_OOE5Rlv7rmOqPqn8wzP7lAtWtq6nNq/view?usp=sharing'],
+].map(([n,u])=>`<div class="card"><strong>${n}</strong> ${fmtDrive(u)}</div>`).join('')}
+<div class="divider"></div>
+<div class="section-label">1.8.8</div>
+<p><em>Coming Soon!</em></p>
+`;
+
+pages['custom-skins']=()=>`
+<h2>Custom Skins</h2>
+<p>How to Use: When you open an instance of Eaglercraft, there will be a button called 'Add Skin'. Click it and upload the downloaded skin you can get by clicking the players name.</p>
+<div class="divider"></div>
+<div class="version-grid">
+${[
+['Dream',DL+'1NcvnH7N06TI1XKVRJanuITY1W_WAV994'],
+['Technoblade',DL+'1jRKMcnSWHD76vMzj0pdOCBPjqwGILXbN'],
+['Sapnap',DL+'1sj6Pq14kMluxFY_VltCysOuEquHrkfhh'],
+['Patrick Star',DL+'12uvz5qY78aCR8qHNc3gNbTijPrF93DCk'],
+['SpongeBob Squarepants',DL+'1Jlqhsda5MNpjIn3DqtPcivr66ON405pk'],
+['Jack Black Steve',DL+'1q2Oc1CyuU7J8zL-r2UGjHwNSXK0OV3NE'],
+['Camman18YT',DL+'1S1byQuZfBDyHMwECR__piCbgj-PNq6iJ'],
+['GroxMC',DL+'1QfemONNOY0b-ghdicThEoXibd3_WPKGz'],
+['GeorgeNotFound',DL+'1ZTjmpWbG6vqmbeYFkicvX_vd5tUBfU2N'],
+['lax1dude',DL+'1kiUTL9DfpjO7wsxk9uAhO7m5vmitiC7T'],
+['Ayunami2000',DL+'1Qaohlxi30UrC9SQb4Wqq8BNpXIYjBnQN'],
+['Axolotl Detective',DL+'1dazmn0OtDl8MK7zHMtVoKozsPu7nIPrf'],
+['Ronaldo',DL+'1huQR5xG8PDNNCD7UXqpCdykqWvAnjt7q'],
+['Messi',DL+'1SSwjb7l4OSWci4ielXF1ms8h4saeHmOz'],
+['Shohei Ohtani',DL+'1TehEki7oNSSBvwPZ3o1orCJzvjVQniJb'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+`;
+
+pages['custom-capes']=()=>`
+<h2>Custom Capes</h2>
+<p>Minecraft Capes not provided already in Eaglercraft.</p>
+<div class="divider"></div>
+<div class="version-grid">
+${[
+['Common Cape',DL+'1i0Gp6vbps42pQm1c-m9PBaAadtw6jW5D'],
+['Pan Cape',DL+'1l4mDMQLaNDHPXxLko35q9fv-xNaL0S9e'],
+['Minecraft Experience Cape',DL+'1UxRl13Xky4xEl6UXGrRnsYXVLr9tCfJw'],
+['Menace Cape',DL+'11P-2VzFtzwu6RmEolnApHG2AOPCRixby'],
+['Yearn Cape',DL+'1CX_RtNbhG9S7OJoPhO56qRCKb4aA7LOm'],
+['Builder Cape',DL+'1FuNMS8usn12wjPpXZZXdC4q7crPP6ok7'],
+['Copper Cape',DL+'1vmxWUbra6biSke1siHJkOLhVBPB4b3KC'],
+['Zombie Horse Cape',DL+'1UyiideeG5lUUDC_aSlEJobWEY44JWiMJ'],
+['Blueprint Cape',DL+'1jxxY_HI5jh2Tu3ykqY_arA7Gw8ql7cll'],
+].map(([n,u])=>`<div>${n} ${fmtDrive(u)}</div>`).join('')}
+</div>
+`;
+
+pages['memes']=()=>`
+<h2>Memes</h2>
+<p>Here you find the most random memes in the world made by the community. They make no sense.</p>
+<div class="divider"></div>
+${[
+"I swear it's so funny seeing a some guy's github server post get ratio'd because of Gavin",
+"fun fact: WASM GC stands for WebAssembly Garbage Collection",
+"What do they mean by 'warning proceed at your own risk'?",
+"lore accurate bedrock port for eaglercraft",
+"No PC no problem",
+"it's him",
+"Bro think eagler is made by Mojang",
+"I Fell through the damn floor"
+].map(m=>`<div class="card"><p>"${m}"</p></div>`).join('')}
+`;
+
+pages['youtubers']=()=>`
+<h2>YouTubers</h2>
+<p>Of course Eaglercraft would have its fair share of YouTubers. Now you may find the more social area of Eaglercraft. If you are one of these YouTuber's, I wish the best of luck.</p>
+<div class="divider"></div>
+<div class="version-grid">
+${[
+['Dicestack88','https://www.youtube.com/@dicestack88'],
+['Kingzzisbad','https://www.youtube.com/@kingzzisbad'],
+['Twlxght','https://www.youtube.com/@Twlxght'],
+['Krythos-YT','https://www.youtube.com/@Krythos-YT'],
+['Eaglercraft','https://www.youtube.com/@eaglercraft-official'],
+['Vooltek','https://www.youtube.com/@vooltek'],
+['Jkcuk','https://www.youtube.com/@jkcuk18'],
+['re0_sa1onj1_xd','https://youtube.com/@re0_sa1onj1_xd'],
+['Kanndbeans','https://www.youtube.com/@kanndbeans'],
+['_MrPizza_','https://youtube.com/@misterpizza44'],
+['LongW00D','https://www.youtube.com/@long_w00dmc'],
+['Fluffy Egg','https://www.youtube.com/@Fluffy-eggMC'],
+['shadownetwork12650','https://www.youtube.com/@shadownetwork12650'],
+].map(([n,u])=>`<div>${n} ${fmtExternal(u,'YouTube')}</div>`).join('')}
+</div>
+`;
+
+pages['skidders']=()=>`
+<h2>Skidders</h2>
+<div class="divider"></div>
+<div class="card">
+<p><strong>Modern Client Devs</strong> ripped of Tuff Client source code, completely without consent - <em>reported by Uzi</em></p>
+</div>
+<div class="card">
+<p><strong>xXJ0NXx</strong> stole MineX's ui completly, then skidded EaglercraftNOA V2 - <em>reported by TheCookering</em></p>
+</div>
+<div class="card">
+<p><strong>TheBananamanJCG</strong> takes credit for other people's work, and claims it to be his - <em>reported by TheCookering</em></p>
+</div>
+`;
+
+pages['eagler-history']=()=>`
+<h2>Eagler History</h2>
+<p>Outline of Eaglercraft's History For Nerds. If your school blocks this website, they're stealing your learning!</p>
+<div class="divider"></div>
+<div class="section-label">2020-2022</div>
+<ul>
+<li>Lax1Dude ported Minecraft 1.5.2, beta 1.3, and 1.8.8 to the web</li>
+<li>First ever Eaglercraft client was made</li>
+<li>First ever DMCA was recorded</li>
+<li>Lax1Dude took a step down</li>
+<li>Eaglercraft.com was registered as a domain</li>
+</ul>
+<div class="divider"></div>
+<div class="section-label">2024-2025</div>
+<ul>
+<li>A bunch of Eaglercraft launchers were made</li>
+<li>PeytonPlayz595, CatFoolYou, and others decided to make Eaglercraft 1.12.2</li>
+<li>EaglerForge was made</li>
+<li>First ever 1.12.2 release</li>
+<li>Overhaul updates to Eaglercraft 1.8.8</li>
+<li>Last Eaglercraft 1.8.8 update</li>
+<li>Many other ports, clients, and even forge mods were being ported to Eaglercraft</li>
+<li>1.21.11 development began</li>
+</ul>
+<div class="divider"></div>
+<div class="section-label">2026</div>
+<ul>
+<li>1.21.11 u1 beta released</li>
+<li>1.12.2 u3 released</li>
+<li>1.16.5 began production</li>
+<li>1.17 began production</li>
+<li>1.18.2 began production</li>
+<li>1.13.2 began production</li>
+<li>26.1.2 began production</li>
+<li>1.14.4 began production</li>
+<li>1.20.6 began production</li>
+<li>1.16.5 beta released</li>
+<li>1.17 was discontinued</li>
+<li>26.1.2 was DMCA'd and discontinued</li>
+<li>1.14.2 u0 released</li>
+<li>EaglercraftNOA V2 became the first Eaglercraft launcher to have 100 versions</li>
+<li>26.2 began production</li>
+<li>New 1.17 began production</li>
+</ul>
+`;
+
+pages['faq']=()=>`
+<h2>FAQ</h2>
+<div class="divider"></div>
+${[
+["What is Eaglercraft?","Eaglercraft is Minecraft but on a browser."],
+["Why EaglercraftNOA V2 over others?","Because of our easy navigation, our many versions, and constant updates. We have also set our stone in Eaglercraft history, with the first ever launcher to have over 100 versions!"],
+["Did you make Eaglercraft?","No I did not, and do not take credit."],
+["How to say NOA?","Think of name Noah, and that is how say it."],
+["Does NOA stand for something?","NOA stands for No Ads, which is the whole point of the website."],
+["What is the difference between JAVS and WASM?","JAVS stands for JavaScript, it can be ran on any computer, WASM on the other hand, improves your game play, but not all hardware can run WASM."],
+["What are clients?","Clients both boost your games FPS and adds extra features such as built in fullbright plus other stuff."],
+["What is Wispcraft?","Wispcraft, made by Mercury Workshop, lets you connect your Minecraft account to Eaglercraft, letting you play servers such as Hypixel, Donut SMP, and much more servers!"],
+["What are Pre-Releases?","Pre-Releases are a page on the EaglercraftNOA V2 website that showcases upcoming projects for Eaglercraft that aren't fully done."],
+["Whats a custom skin?","Extra skins for you."],
+["What are mods?","Mods stand for modifications, they can barely make a change in your game, or change your gameplay a ton!"],
+["What are texture packs?","It changes what blocks and items look like completely!"],
+["What is the \"News\" about?","The \"News\" is a page on our website that has all the information you need to know on Eaglercraft."],
+["Who are skidders?","They are people who steals other peoples code without permission, and generally just bad people."],
+["Whats the tutorial page about?","A step by step how to on many things for Eaglercraft."],
+].map(([q,a])=>`<div class="faq-item"><div class="faq-q">Q: ${q}</div><div class="faq-a">A: ${a}</div></div>`).join('<div class="divider"></div>')}
+`;
+
+pages['tutorials']=()=>`
+<h2>Tutorials</h2>
+<p>Your guides!</p>
+<div class="divider"></div>
+<div class="card"><p><strong>Playing Eaglercraft</strong></p><p><small>Requires internet - links to tutorial subpage on the original site</small></p></div>
+<div class="card"><p><strong>Setting up Wispcraft</strong></p><p><small>Requires internet - links to tutorial subpage on the original site</small></p></div>
+<div class="card"><p><strong>Loading Mods</strong></p><p><small>Requires internet - links to tutorial subpage on the original site</small></p></div>
+<div class="card"><p><strong>Making Shared Worlds</strong></p><p><small>Requires internet - links to tutorial subpage on the original site</small></p></div>
+`;
+
+pages['feedback']=()=>`
+<h2>Feedback</h2>
+<div class="card">
+<p><a href="https://docs.google.com/forms/d/e/1FAIpQLSdwAWkVoUUK1P7wqGT2sHWImxituGbvpl-VrBR_N5QZTgw1zw/viewform" target="_blank" rel="noopener" class="btn btn-play">Open Feedback Form</a></p>
+<p style="margin-top:12px"><em>Feedback form requires internet connection</em></p>
+</div>
+`;
+
+pages['noa-projects']=()=>`
+<h2>NOA Projects</h2>
+<p>A page to let you know new changes or additions to this site, and projects I am doing.</p>
+<div class="divider"></div>
+
+<div class="card">
+<p><strong>11:25 Eastern 7/28/26:</strong> Holy I need to catch up</p>
+<ul>
+<li>Changed every minor update a "u", so u1 or u2, anyways</li>
+<li>Became the first EVER eaglercraft launcher to have 100+ versions</li>
+<li>Redesigned the launcher page</li>
+<li>Added back Downloads page</li>
+<li>Removed WASM-GC Downloads</li>
+<li>Added a dropdown</li>
+<li>Added tutorials</li>
+<li>Added YouTubers</li>
+<li>Added Skidders</li>
+<li>Small tweaks for design</li>
+<li>Changed play/ github to version/ github</li>
+<li>Gained 5000 views</li>
+<li>Make new trailer</li>
+<li>and added this text right HERE.</li>
+</ul>
+</div>
+
+<div class="card">
+<p><strong>7:48 Eastern 7/1/26:</strong> I did not update this at all, anyways, added drop down, added wispcraft, more versions, added youtubers, updated custom skins, updated mods, removed seeds page, gained 2,500 K views from 2,500 different people, updated pre-releases, completed wasm-gc downloads, and more, made a discord server with a good following, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>11:52 Eastern:</strong> Added new versions in launcher, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>4:50 Eastern:</strong> Added Seeds, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>2:43 5/31/26 Eastern:</strong> Updated Pre-Release and downloads, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>2:43 Eastern:</strong> Forgot to update this! added clients to Client Launcher Finally, added more clients to downloads, and added beta 1.0.2, and a secret I plan to add very soon, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>11:19 Eastern:</strong> Changed Starlike download, added hacked clients, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>12:58 Eastern AM:</strong> Changed banner, and added clients to downloads, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>9:39 Eastern:</strong> Added new clients and added small deatails like dividers, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>5:02 Eastern:</strong> Added news article, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>4:53 Eastern:</strong> Removed a few clients for legal reasons that I am not risking. Also added Eaglercraft 1.0 for a launcher and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>1:59 Eastern:</strong> Added more download options, and added this text right HERE. Notice, I am no longer going to update EaglercraftNOA CI!</p>
+</div>
+
+<div class="card">
+<p><strong>EaglercraftNOA GB:</strong> "EaglercraftNOA GB is a site that I just made for another version of EaglercraftNOA. I also changed the website link." <a href="https://sites.google.com/view/e-noa-v2-gb/hub" target="_blank" rel="noopener">https://sites.google.com/view/e-noa-v2-gb/hub</a></p>
+</div>
+
+<div class="card">
+<p><strong>6:54 Eastern:</strong> Moved text of Downloads page, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>6:50 Eastern:</strong> Changed buttons from red to white, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>6:45 Eastern:</strong> Added Eaglercraft 1.3.2, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>12:29 Eastern:</strong> Added news article for Hub, News, and added this text right HERE at 12:31 Eastern.</p>
+</div>
+
+<div class="card">
+<p><strong>8:18 Eastern:</strong> Changed Banner for Hub page, changed Eaglercraft CI link to a button, and added this text right HERE.</p>
+</div>
+
+<div class="card">
+<p><strong>Classic EaglercraftNOA site recreation:</strong> "It has been almost two years since the start of EaglercraftNOA, but back then, it wasn't called EaglercraftNOA. Find out the start of it all, an it's first name." <a href="https://sites.google.com/view/eaglercraft-without-ads/home" target="_blank" rel="noopener">https://sites.google.com/view/eaglercraft-without-ads/home</a></p>
+</div>
+
+<div class="card">
+<p><strong>EaglercraftNOA CI:</strong> "EaglercraftNOA CI mode is a site I am making for fun, coming very soon." <a href="https://sites.google.com/view/e-noaci/hub" target="_blank" rel="noopener">https://sites.google.com/view/e-noaci/hub</a></p>
+</div>
+`;
+
+pages['backups']=()=>`
+<h2>Backups</h2>
+<p>Backup Links if EaglercraftNOA V2 is block on your school. I do NOT support school proxies, so therfore, these will not be updated.</p>
+<div class="divider"></div>
+<div class="version-grid">
+${[
+['Backup Link 1','https://sites.google.com/view/eaglercraftnoav2'],
+['Backup Link 2','https://sites.google.com/view/thethethethe12345'],
+['Backup Link 3','https://sites.google.com/view/darthvader-solos-everyone'],
+['Backup Link 4','https://sites.google.com/view/qwertyuiopasdfghjklzxcvbnm7'],
+['Backup Link 5','https://sites.google.com/view/1w2e3r4t5y6u7i8o9p'],
+['Backup Link 6','https://sites.google.com/view/noa-v2'],
+['Backup Link 7','https://sites.google.com/view/minicrafters'],
+['Backup Link 8','https://sites.google.com/view/tungtungtungs4hur'],
+['Backup Link 9','https://sites.google.com/view/heatbeats'],
+['Backup Link 10','https://sites.google.com/view/classroom-01x'],
+['Backup Link 11','https://sites.google.com/view/yourcompanymakes'],
+['Backup Link 12','https://sites.google.com/view/eaglercraft-noa-v2'],
+['Backup Link 13','https://sites.google.com/view/webbewbw'],
+['Backup Link 14','https://sites.google.com/view/unblocked-games123321456654'],
+['Backup Link 15','https://sites.google.com/view/final-copy-backup'],
+].map(([n,u])=>`<div>${n} ${fmtExternal(u,'Open')}</div>`).join('')}
+</div>
+<div class="divider"></div>
+<div class="card">
+<p><strong>UNBLOCKABLE LINK:</strong> <a href="https://classroom.google.com/" target="_blank" rel="noopener" class="btn btn-play">Google Classroom</a></p>
+</div>
+`;
+
+function render(name){
+const main=document.getElementById('main');
+var p=pages[name];p=p&&p.call?p():p;main.innerHTML=p||`<h2>Page not found</h2><p>The page "${name}" does not exist.</p>`;
+main.scrollTop=0;
+window.scrollTo(0,0);
+document.querySelectorAll('.sidebar a').forEach(a=>{a.classList.toggle('active',a.getAttribute('data-nav')===name)});
+}
+
+function navigate(){
+const hash=location.hash.slice(1)||'hub';
+render(hash);
+closeSidebar();
+}
+
+window.addEventListener('hashchange',navigate);
+window.addEventListener('load',()=>{
+renderSidebar();
+renderFooter();
+navigate();
+});
+</script>
+</body>
+</html>
